@@ -1,0 +1,85 @@
+#the docker compose file version
+version: "3.7"
+# you can run multiple services inside one docker compose file
+# define them with their dependencies one after the other
+services:
+  # service 1 named react-prod
+  react:
+    # service 1 container name
+    container_name: react
+    build:
+      # the context (working directory) is the current directory
+      # change this to the directory containing the dockerfile if in a different place
+      context: ./react
+      # the dockerfile to be run
+      dockerfile: Dockerfile
+        # map the exposed port from the underlying service to a port exposed to the outside
+        # in this case  map port 80 exposed by nginx to port 3000 on the outside
+        # to be used to access the container from the outside
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "./react:/app"
+    networks: 
+      - "frontend" 
+    depends_on:
+      - flask
+    restart: unless-stopped
+
+  flask:
+    build:
+      context: ./flask
+      dockerfile: Dockerfile
+    container_name: flask
+    restart: unless-stopped
+    environment:
+      APP_ENV: "prod"
+      APP_DEBUG: "False"
+      APP_PORT: 5000
+      MONGODB_DATABASE: flaskdb
+      MONGODB_USERNAME: flaskuser
+      MONGODB_PASSWORD: password
+      MONGODB_HOSTNAME: mongodb
+    devices:
+      - /dev/snd
+      - /dev/vchiq
+    volumes:
+      - ./flask:/var/www
+    depends_on:
+      - mongodb
+    ports:
+      - "5000:5000"
+    networks:
+      - frontend
+      - backend
+
+  mongodb:
+    image: andresvidal/rpi3-mongodb3
+    container_name: mongodb
+    command: bash -c "mongod --repair && mongod"
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mushding
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: flaskdb
+      MONGODB_DATA_DIR: /data/db
+      MONDODB_LOG_DIR: /dev/null
+    volumes:
+      - ./mongodb:/data/db
+    networks:
+      - backend
+
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge
+
+volumes:
+  mongodbdata:
+    driver: local
+  appdata:
+    driver: local
+  nginxdata:
+    driver: local

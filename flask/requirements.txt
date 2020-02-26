@@ -1,0 +1,9 @@
+flask
+flask_cors
+Flask-PyMongo
+flask_restful
+retrying
+pathlib
+requests
+omxplayer-wrapper
+youtube_dl
