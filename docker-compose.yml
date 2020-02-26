@@ -19,6 +19,8 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    environment:
+      API_BASE_URL: "http://192.168.2.4:5000"
     volumes:
       - "./react:/app"
     networks: 
