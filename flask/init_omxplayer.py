@@ -14,18 +14,21 @@ class Omx:
         self.volume = 1
 
     def init(self):
-        isInit = False
-        while not isInit:
+        for i in range(10):
             try:
                 omxPlayerInitailSound = Path(self.init_folder)
                 self.player = OMXPlayer(omxPlayerInitailSound)
-                isInit = True
             except:
                 pass
     
     def play(self, pageName, songName):
         if not self.player:
-            self.player = OMXPlayer(self.song_folder + '/' + pageName + '/' + songName)
+            for i in range(10):
+                try:
+                    omxPlayerInitailSound = Path(self.init_folder)
+                    self.player = OMXPlayer(omxPlayerInitailSound)
+                except:
+                    pass
         else:
             self.player.quit()
             self.player.load(self.song_folder + '/' + pageName + '/' + songName)

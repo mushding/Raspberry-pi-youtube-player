@@ -7,6 +7,8 @@ import clsx from 'clsx';
 import CloseIcon from '@material-ui/icons/Close';
 import PlayArrowIcon from '@material-ui/icons/PlayArrow';
 
+import { CONFIG } from '../../config'
+
 import {
     Paper,
     IconButton,
@@ -110,13 +112,17 @@ class SongList extends Component {
             isPauseDisable: false,
             isStopDisable: false,
             
-            playerIP: process.env.API_BASE_URL,
+            playerIP: CONFIG.API_BASE_URL,
         }
         // youtube
         this.deleteSong = this.deleteSong.bind(this)
         this.handlePlayer = this.handlePlayer.bind(this)
     }
     componentDidMount() { // per two second update
+        // const localIpUrl = require('local-ip-url');
+        // this.setState({
+        //     playerIP: localIpUrl(),
+        // })
         this.timerID = setInterval(
             () => this.pingIP(),
             2000
@@ -127,10 +133,9 @@ class SongList extends Component {
     }
     pingIP() {
         axios
-            .get(this.state.playerIP + '/checkYoutubeDLList')
+            .get('http://' + this.state.playerIP + ':5000' + '/checkYoutubeDLList')
             .then(response => {
                 let data = response.data
-                console.log(data)
                 if (data === "no songList"){
                     console.log("no songList!!!!!!")
                     this.setState({
@@ -150,7 +155,7 @@ class SongList extends Component {
                 console.log(error)
             })
             axios
-            .get(this.state.playerIP + '/checkSongIndex')
+            .get('http://' + this.state.playerIP + ':5000' + '/checkSongIndex')
             .then(response => {
                 let data = response.data
                 this.setState({
@@ -168,13 +173,13 @@ class SongList extends Component {
         }
     deleteSong(index){
         axios
-            .get(this.state.playerIP + '/deleteYoutubeDLList/' + String(index))
+            .get('http://' + this.state.playerIP + ':5000' + '/deleteYoutubeDLList/' + String(index))
         }
     handlePlayer(songIndex){
         axios
-            .get(this.state.playerIP + '/nextSongIndex/' + String(songIndex))
+            .get('http://' + this.state.playerIP + ':5000' + '/nextSongIndex/' + String(songIndex))
         axios
-        .get(this.state.playerIP + '/playsongList/' + String(songIndex))
+            .get('http://' + this.state.playerIP + ':5000' + '/playsongList/' + String(songIndex))
         this.setState({
             isReplayDisable: true,
             isPauseDisable: false,

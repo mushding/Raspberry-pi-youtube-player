@@ -128,7 +128,7 @@ def downloadYoutubeDL(website):
 	page = result[0]['playListIndex']
 
 	os.chdir(homepath + "/songList/" + str(page))
-	os.system('youtube-dl -f bestaudio https://www.youtube.com/watch?v=' + website)
+	os.system('youtube-dl -f bestaudio -o "%(title)s.%(ext)s" https://www.youtube.com/watch?v=' + website)
 
 	return "download successfully"
 

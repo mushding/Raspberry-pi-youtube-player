@@ -26,6 +26,8 @@ import SyncDisabledIcon from '@material-ui/icons/SyncDisabled';
 
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 
+import { CONFIG } from '../../config';
+
 import {
     Fab,
     Snackbar,
@@ -225,7 +227,7 @@ class YoutubePlayer extends Component {
             isPauseDisable: false,
             isStopDisable: false,
 
-            playerIP: process.env.API_BASE_URL,
+            playerIP: CONFIG.API_BASE_URL,
 
             error: true,
             snackbarOpen: false,
@@ -245,7 +247,10 @@ class YoutubePlayer extends Component {
         this.handlePlayList = this.handlePlayList.bind(this)
     }
     componentDidMount() { // per two second update
-
+        // const localIpUrl = require('local-ip-url');
+        // this.setState({
+        //     playerIP: localIpUrl(),
+        // })
     }
     handleTextFieldChange(e) {                           // handle submit add songList
         this.setState({
@@ -279,16 +284,16 @@ class YoutubePlayer extends Component {
             console.log(e)
         }
         axios
-            .get(this.state.playerIP + '/downloadYoutubeDL/' + videoURL)
+            .get('http://' + this.state.playerIP + ':5000' + '/downloadYoutubeDL/' + videoURL)
     }
     deleteAllSongs() {
         axios
-            .get(this.state.playerIP + '/deleteAllSong')
+            .get('http://' + this.state.playerIP + ':5000' + '/deleteAllSong')
     }
     handlePlayer(isPlayer) {
         if (isPlayer === 0) {
             axios
-                .get(this.state.playerIP + '/replayYoutubeDLList')
+                .get('http://' + this.state.playerIP + ':5000' + '/replayYoutubeDLList')
             this.setState({
                 isReplayDisable: true,
                 isPauseDisable: false,
@@ -296,7 +301,7 @@ class YoutubePlayer extends Component {
         }
         if (isPlayer === 2) {
             axios
-                .get(this.state.playerIP + '/pauseYoutubeDLList')
+                .get('http://' + this.state.playerIP + ':5000' + '/pauseYoutubeDLList')
             this.setState({
                 isReplayDisable: false,
                 isPauseDisable: true,
@@ -304,7 +309,7 @@ class YoutubePlayer extends Component {
         }
         if (isPlayer === 3) {
             axios
-                .get(this.state.playerIP + '/stopYoutubeDLList')
+                .get('http://' + this.state.playerIP + ':5000' + '/stopYoutubeDLList')
             this.setState({
                 isReplayDisable: true,
                 isPauseDisable: true,
@@ -312,23 +317,23 @@ class YoutubePlayer extends Component {
         }
         if (isPlayer === 4) {
             axios
-                .get(this.state.playerIP + '/stopContinue')
+                .get('http://' + this.state.playerIP + ':5000' + '/stopContinue')
         }
         if (isPlayer === 5) {
             axios
-                .get(this.state.playerIP + '/stopContinue')
+                .get('http://' + this.state.playerIP + ':5000' + '/stopContinue')
         }
         if (isPlayer === 6) {
             axios
-                .get(this.state.playerIP + '/changeVolume/0')
+                .get('http://' + this.state.playerIP + ':5000' + + '/changeVolume/0')
         }
         if (isPlayer === 7) {
             axios
-                .get(this.state.playerIP + '/changeVolume/1')
+                .get('http://' + this.state.playerIP + ':5000' + '/changeVolume/1')
         }
         if (isPlayer === 8) {
             axios
-                .get(this.state.playerIP + '/changeVolume/2')
+                .get('http://' + this.state.playerIP + ':5000' + '/changeVolume/2')
         }
         if (isPlayer === 9) {
             if (this.state.sync === true) {
@@ -336,14 +341,14 @@ class YoutubePlayer extends Component {
                     sync: false,
                 })
                 axios
-                    .get(this.state.playerIP + '/stopContinue')
+                    .get('http://' + this.state.playerIP + ':5000' + '/stopContinue')
             }
             else if (this.state.sync === false) {
                 this.setState({
                     sync: true,
                 })
                 axios
-                    .get(this.state.playerIP + '/startContinue')
+                    .get('http://' + this.state.playerIP + ':5000' + '/startContinue')
             }
 
         }
@@ -375,7 +380,7 @@ class YoutubePlayer extends Component {
     }
     handlePlayList() {                      // handle the textfield text to button
         axios
-            .get(this.state.playerIP + '/addSongListPage/' + String(this.state.playListText))
+            .get('http://' + this.state.playerIP + ':5000' + '/addSongListPage/' + String(this.state.playListText))
         this.setState({
             playListText: "",
             anchorElAdd: null,

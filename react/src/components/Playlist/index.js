@@ -2,6 +2,8 @@ import React, {useEffect} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import axios from 'axios'
 
+import { CONFIG } from '../../config'
+
 import {
     FormHelperText,
     InputLabel,
@@ -23,7 +25,9 @@ const useStyles = makeStyles(theme => ({
 
 export default function PlayList(props) {
     const classes = useStyles();
-    const playerIP = process.env.API_BASE_URL
+    // const localIpUrl = require('local-ip-url');
+    // const playerIP = localIpUrl()
+    const playerIP = CONFIG.API_BASE_URL
     const [songList, setSongList] = React.useState([]);
     const [songListIndex, setSongListIndex] = React.useState('');
 
@@ -33,14 +37,14 @@ export default function PlayList(props) {
     };
     const handleplayList = (index) => {
         axios
-            .get(playerIP + '/changeSongListPage/' + String(index))
+            .get('http://' + playerIP + ':5000' + '/changeSongListPage/' + String(index))
             .catch(error => {
                 console.log(error)
             })
     }
     useEffect(() => 
         axios
-            .get('http://' + playerIP + '/getSongListPage')
+            .get('http://' + playerIP + ':5000' + '/getSongListPage')
             .then(response => {
                 let data = response.data
                 setSongList(data)
