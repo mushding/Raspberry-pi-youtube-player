@@ -1,13 +1,13 @@
 Raspberry-pi-youtube-player
 ===
+###### tags: `github README.md`
 ![](https://i.imgur.com/OwecVXa.png)
 
 ## 0. Introduction 
-This is a simple youtube player on Rpi, can quickly add youtube songs and change playlist using react flask omxPlayer and mongodb.
+This is a simple youtube player on Rpi. It can quickly download youtube songs and change playlist using react flask omxPlayer and mongodb.
 
 feature：
 * download youtube songs to webm using youtube-dl
-* can connected with hdmi to see the video or just connected to sound
 * using react to visualized songlist in playlist
 * adding playlist and deleting playlist
 * change songs at every time every moment
@@ -19,24 +19,16 @@ feature：
 
 ### Requirements
 Install following modules.
-* Python 3.6.*
-* flask
-* pymongo
-* omxPlayer
-* youtube-dl
-* mongodb
-* nodejs
-* react
-* react-router-dom
-* @material-ui/core
-* @material-ui/icons
+* docker
+* docker-compose
 
 ### quick start
 ```
+sudo chmod 777 /dev/vchiq
 cd Raspberry-pi-youtube-player
-./bootexe.sh
+docker-compose up -d
 ```
 
 ## 2. TODO List
-- [ ] build react with nginx
-- [ ] pack whole code in docker images
+bug fix
+- [ ] omxplayer dbus not found
