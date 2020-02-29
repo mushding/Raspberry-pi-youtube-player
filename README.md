@@ -23,10 +23,26 @@ Install following modules.
 * docker-compose
 
 ### quick start
+1. change /dev/vchiq (the Rpi playing dev) to 777
 ```
 sudo chmod 777 /dev/vchiq
+```
+2. run docker compose
+```
 cd Raspberry-pi-youtube-player
 docker-compose up -d
+```
+3. make a mongodb user and database
+```
+docker exec -it <your mongodb container id> /bin/bash
+mongo
+```
+```
+# in the mongo
+
+> use flaskdb
+> db.createUser({user: 'flaskuser', pwd: 'password', roles: [{role: 'readWrite', db: 'flaskdb'}]})
+> exit
 ```
 
 ## 2. TODO List
