@@ -25,8 +25,6 @@ const useStyles = makeStyles(theme => ({
 
 export default function PlayList(props) {
     const classes = useStyles();
-    // const localIpUrl = require('local-ip-url');
-    // const playerIP = localIpUrl()
     const playerIP = CONFIG.API_BASE_URL
     const [songList, setSongList] = React.useState([]);
     const [songListIndex, setSongListIndex] = React.useState('');

@@ -29,6 +29,8 @@ yarn-error.log*
 /flask/core
 /flask/reload
 /flask/wsgi.pyc
+/flask/songList
+/flask/songListTxt
 
 # mongodb
 /mongodb

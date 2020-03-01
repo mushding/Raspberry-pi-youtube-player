@@ -11,7 +11,9 @@ import time
 import json
 
 # import omxplayer 
-from init_omxplayer import Omx
+from pathlib import Path
+from omxplayer.player import OMXPlayer
+# from init_omxplayer import Omx
 
 # import youtube downloader
 import youtube_dl
@@ -36,33 +38,50 @@ init_database()
 mongo = PyMongo(application)
 # asign database
 db = mongo.db
-# initial omxplayer
-omx = Omx()
-omx.init()
-
 # get home pwd
 homepath = str(os.getcwd())
+init_folder = homepath + "/omxPlayerInitailSound.wav"
+song_folder = homepath + "/songList"
+# initial omxplayer
+# omx = Omx()
+# omx.init()
+omxPlayerInitailSound = Path(init_folder)
+youtube = OMXPlayer(omxPlayerInitailSound)
+# init volumn
+volume = 1
+def on_player_exit(player, exit_status):
+	if exit_status == -15:
+		return
+	if exit_status == 3:
+		return 
+	nextSong()
 
 # Youtube Player
 # <----- user press top button area ----->
 # replay playing now
 @application.route('/replayYoutubeDLList', methods=['GET'])
 def replayYoutubeDLList():
-	omx.pause()
+	# omx.pause()
+	global youtube
+	youtube.play_pause()
 	result = db.youtubeSongIndex.find_one_and_update({'isStopState': {'$exists': True}}, {"$set": {"isStopState": 0}})
 	return "play sound successfully"
 
 # pause playing now
 @application.route('/pauseYoutubeDLList', methods=['GET'])
 def pauseYoutubeDLList():
-	omx.pause()
+	# omx.pause()
+	global youtube
+	youtube.play_pause()
 	result = db.youtubeSongIndex.find_one_and_update({'isStopState': {'$exists': True}}, {"$set": {"isStopState": 1}})
 	return "pause sound successfully"
 
 # stop playing now
 @application.route('/stopYoutubeDLList', methods=['GET'])
 def stopYoutubeDLList():
-	omx.stop()
+	# omx.stop()
+	global youtube
+	youtube.stop()
 	result = db.youtubeSongIndex.find_one_and_update({'isStopState': {'$exists': True}}, {"$set": {"isStopState": 2}})
 	return "stop sound successfully"
 
@@ -83,15 +102,17 @@ def startContinue():
 # Change Volume
 @application.route('/changeVolume/<int:setVolume>', methods=['GET'])
 def changeVolume(setVolume):
+	global youtube
+	global volume
 	if setVolume == 0:
-		volume = -0.2
-		omx.set_volume(volume)
+		volume = volume - 0.2
+		youtube.set_volume(volume)
 	elif setVolume == 1:
-		volume = 0.2
-		omx.set_volume(volume)
+		volume = volume + 0.2
+		youtube.set_volume(volume)
 	elif setVolume == 2:
 		volume = 0
-		omx.set_volume(volume)
+		youtube.set_volume(volume)
 	return "change successfully"
 
 # delete all song file
@@ -162,9 +183,7 @@ def deleteYoutubeDLList(index):
 	db.youtubeSongList.remove({})
 	return "delete successfully"
 
-# play the specific songs
-@application.route('/playsongList/<int:index>', methods=['GET'])
-def playsongList(index):
+def playsong(index):
 	result = db.youtubeSongIndex.find({'sequence_value': {'$exists': True}})
 	result = json.loads(json_util.dumps(result))
 	page = result[0]['playListIndex']
@@ -173,7 +192,18 @@ def playsongList(index):
 	result = db.youtubeSongList.find().sort([("index", 1)])
 	songList = json.loads(json_util.dumps(result))
 
-	omx.play(page, songList[index]['songName'])
+	# omx.play(page, songList[index]['songName'])
+	global youtube
+	youtube.quit()
+	youtube.exitEvent += on_player_exit
+	youtube.load(song_folder + '/' + page + '/' + songList[index]['songName'])
+
+	return songList
+
+# play the specific songs
+@application.route('/playsongList/<int:index>', methods=['GET'])
+def playsongList(index):
+	songList = playsong(index)
 
 	return jsonify(songList)
 
@@ -208,14 +238,27 @@ def checkYoutubeDLList():
 # return all song formation (progress, index, ...)
 @application.route('/checkSongIndex', methods=['GET'])
 def checkSongIndex():
-	position = omx.get_position()
-	percentages = 0
-	if position['duration'] != 0:
-		percentages = 100 * float(position['position'])/float(position['duration'])
-	result = db.youtubeSongIndex.find_one_and_update({'nowProgress': {'$exists': True}}, {"$set": {"nowProgress": percentages}})
-	result = db.youtubeSongIndex.find({'playNowIndex': {'$exists': True}})
-	result = json.loads(json_util.dumps(result))
-	return jsonify(result)
+	# position = omx.get_position()
+	try:
+		position = {
+			# "position": youtube.position(),
+            # "duration": youtube.duration(),
+			"position": 0,
+			"duration": 0,
+		}
+	except Exception as e:
+		position = {
+            "position": 0,
+            "duration": 0,
+        }
+	finally:
+		percentages = 0
+		if position['duration'] != 0:
+			percentages = 100 * float(position['position'])/float(position['duration'])
+		result = db.youtubeSongIndex.find_one_and_update({'nowProgress': {'$exists': True}}, {"$set": {"nowProgress": percentages}})
+		result = db.youtubeSongIndex.find({'playNowIndex': {'$exists': True}})
+		result = json.loads(json_util.dumps(result))
+		return jsonify(result)
 
 # <----- handle next song callback area ----->
 # update next Song
@@ -225,7 +268,6 @@ def nextSongIndex(index):
 	return "set successfully"
 
 # next Song
-@application.route('/nextSong', methods=['GET'])
 def nextSong():
 	result = db.youtubeSongIndex.find_one_and_update({'playNowIndex': {'$exists': True}}, {"$inc": {"playNowIndex": 1}}, new=True)
 	result = json.loads(json_util.dumps(result))
@@ -239,16 +281,8 @@ def nextSong():
 		result = db.youtubeSongIndex.find_one_and_update({'playNowIndex': {'$exists': True}}, {"$set":{"playNowIndex": 0}})
 		nowIndex = 0 
 	if result['isContinue']:
-		# requests.get('http://0.0.0.0:5000' + '/playsongList/' + str(nowIndex))
-		result = db.youtubeSongIndex.find({'sequence_value': {'$exists': True}})
-		result = json.loads(json_util.dumps(result))
-		page = result[0]['playListIndex']
-		result = db.youtubeSongIndex.find_one_and_update({'isStopState': {'$exists': True}}, {"$set": {"isStopState": 0}})
-		
-		result = db.youtubeSongList.find().sort([("index", 1)])
-		songList = json.loads(json_util.dumps(result))
+		playsong(nowIndex)
 
-		omx.play(page, songList[nowIndex]['songName'])
 		return "nextSong successfully"
 
 # <----- songList setting area ----->
