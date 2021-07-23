@@ -1,0 +1,5 @@
+Flask==1.1.1
+flask_cors
+python-vlc
+youtube_dl
+requests

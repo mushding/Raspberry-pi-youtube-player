@@ -1,0 +1,62 @@
+version: '3'
+services:
+  frontend:
+    build: ./reactapp
+    image: "youtube-player-reactapp:1.0.0"
+    restart: unless-stopped
+    networks:
+      - sub-etha
+    volumes: 
+      - ./reactapp/build:/usr/share/nginx/html
+  backend:
+    build: ./flask
+    image: "youtube-player-flaskapp:1.0.0"
+    restart: unless-stopped
+    networks:
+      - sub-etha
+    volumes: 
+      - ./flask/app:/var/www/
+    devices: 
+      - /dev/snd
+      - /dev/vchiq
+    # depends_on:
+    #   - db
+    environment: 
+      TZ: Asia/Taipei
+  revproxy:
+    build: ./nginx
+    image: "youtube-player-reverseproxy:1.0.0"
+    restart: unless-stopped
+    networks:
+      - sub-etha
+    ports:
+      - 5000:80
+#     links:
+#       - db
+#     depends_on: 
+#       - frontend
+#       - backend
+#       - flask
+#   db:
+#     image: mysql/mysql-server:5.7
+#     restart: unless-stopped
+#     command: --default-authentication-plugin=mysql_native_password
+#     environment:
+#       MYSQL_USER: ${MYSQL_USER}
+#       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+#       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+#       MYSQL_DATABASE: ${MYSQL_DATABASE}
+#       TZ: Asia/Taipei
+#     volumes:
+#       - ./sql:/docker-entrypoint-initdb.d
+#       - dbdata:/var/lib/mysql
+#     ports:
+#       - 3306:3306
+#     networks:
+#       - sub-etha
+networks:
+  sub-etha:
+    driver: bridge
+# volumes:
+#   dbdata:
+#     driver: local
