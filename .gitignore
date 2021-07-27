@@ -6,13 +6,6 @@ reactapp/node_modules
 /.pnp
 .pnp.js
 
-# testing
-reactapp/coverage
-
-# production
-reactapp/build
-/coverage
-
 # misc
 .DS_Store
 .env.local
