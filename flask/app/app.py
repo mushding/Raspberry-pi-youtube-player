@@ -7,6 +7,7 @@ import requests
 # for youtube player
 import os
 import time
+import random
 
 # import youtube downloader
 import youtube_dl
@@ -27,7 +28,8 @@ playNowIndex = -1
 playList = []
 currentPlayList = 'none'
 currentSongList = []
-
+songListOrder = False
+isShuffle = False
 
 # get home pwd
 homepath = str(os.getcwd())
@@ -64,13 +66,43 @@ def stopYoutubeDLList():
 # Stop Continue
 @app.route('/api/stopContinue', methods=['GET'])
 def stopContinue():
+    global isContinue
     isContinue = False
     return "set successfully"
 
 # Start Continue
 @app.route('/api/startContinue', methods=['GET'])
 def startContinue():
+    global isContinue
     isContinue = True
+    return "set successfully"
+
+# upward order
+@app.route('/api/upwardSongList', methods=['GET'])
+def upwardSongList():
+    global songListOrder
+    songListOrder = True
+    return "set successfully"
+
+# downward order
+@app.route('/api/downwardSongList', methods=['GET'])
+def downwardSongList():
+    global songListOrder
+    songListOrder = False
+    return "set successfully"
+
+# start Shuffle
+@app.route('/api/startShuffle', methods=['GET'])
+def startShuffle():
+    global isShuffle
+    isShuffle = True
+    return "set successfully"
+
+# stop Shuffle
+@app.route('/api/stopShuffle', methods=['GET'])
+def stopShuffle():
+    global isShuffle
+    isShuffle = False
     return "set successfully"
 
 # Change Volume
@@ -154,11 +186,13 @@ def playsongList(index):
 @app.route('/api/checkYoutubeDLList', methods=['GET'])
 def checkYoutubeDLList():
     global currentSongList
+    global songListOrder
+
     if currentPlayList == "none":
         return "no playList"
     
     os.chdir(song_folder)
-    songListByFile = sorted(os.listdir(), key=os.path.getmtime, reverse=True)
+    songListByFile = sorted(os.listdir(), key=os.path.getctime, reverse=songListOrder)
 
     currentSongList = []
     for index, song in enumerate(songListByFile):
@@ -182,7 +216,9 @@ def checkYoutubeDLList():
 def nextSong():
     global playNowIndex
 
-    if playNowIndex == len(currentSongList) - 1:
+    if isShuffle:
+        playNowIndex = random.randint(0, len(currentSongList) - 1)
+    elif playNowIndex == len(currentSongList) - 1:
         playNowIndex = 0 
     else:
         playNowIndex += 1 

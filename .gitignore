@@ -28,9 +28,8 @@ yarn-debug.log*
 yarn-error.log*
 
 # flask
-/flask/__pycache__
-/flask/app.pyc
-/flask/core
-/flask/reload
-/flask/wsgi.pyc
-/flask/songList
+/flask/app/__pycache__
+/flask/app/app.pyc
+/flask/app/core
+/flask/app/reload
+/flask/app/songList

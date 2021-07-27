@@ -23,6 +23,12 @@ import VolumeUpIcon from '@material-ui/icons/VolumeUp';
 import SyncIcon from '@material-ui/icons/Sync';
 import SyncDisabledIcon from '@material-ui/icons/SyncDisabled';
 
+import PublishIcon from '@material-ui/icons/Publish';
+import GetAppIcon from '@material-ui/icons/GetApp';
+
+import ShuffleIcon from '@material-ui/icons/Shuffle';
+import FormatLineSpacingIcon from '@material-ui/icons/FormatLineSpacing';
+
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 
 import { CONFIG } from '../../config';
@@ -221,6 +227,8 @@ class YoutubePlayer extends Component {
             textfieldText: "",    // tab text
             playListText: "",       // add playlist text
             sync: true,             // is sync
+            songOrder: false,       // false downward, true upward
+            isShuffle: false,
 
             isReplayDisable: true,
             isPauseDisable: false,
@@ -369,6 +377,50 @@ class YoutubePlayer extends Component {
                 }
             }
         }
+        if (isPlayer === 10) {
+            if (this.state.songOrder === true) {
+                this.setState({
+                    songOrder: false,
+                })
+                try {
+                    await fetch('/api/downwardSongList')
+                } catch (error) {
+                    console.log(error);
+                }
+            }
+            else if (this.state.songOrder === false) {
+                this.setState({
+                    songOrder: true,
+                })
+                try {
+                    await fetch('/api/upwardSongList')
+                } catch (error) {
+                    console.log(error);
+                }
+            }
+        }
+        if (isPlayer === 11) {
+            if (this.state.isShuffle === true) {
+                this.setState({
+                    isShuffle: false,
+                })
+                try {
+                    await fetch('/api/stopShuffle')
+                } catch (error) {
+                    console.log(error);
+                }
+            }
+            else if (this.state.isShuffle === false) {
+                this.setState({
+                    isShuffle: true,
+                })
+                try {
+                    await fetch('/api/startShuffle')
+                } catch (error) {
+                    console.log(error);
+                }
+            }
+        }
     }
     scrollToTop() {
         console.log("scroll?")
@@ -441,6 +493,12 @@ class YoutubePlayer extends Component {
                             <div className={classes.playerMargin}>
                                 <Fab aria-label="FastRewind" className={classes.otherButton} onClick={this.handlePlayer.bind(this, 9)}>
                                     {this.state.sync ? <SyncIcon /> : <SyncDisabledIcon />}
+                                </Fab>
+                                <Fab aria-label="FastRewind" className={classes.otherButton} onClick={this.handlePlayer.bind(this, 10)}>
+                                    {this.state.songOrder ? <PublishIcon /> : <GetAppIcon />}
+                                </Fab>
+                                <Fab aria-label="FastRewind" className={classes.otherButton} onClick={this.handlePlayer.bind(this, 11)}>
+                                    {this.state.isShuffle ? <ShuffleIcon /> : <FormatLineSpacingIcon />}
                                 </Fab>
                             </div>
                         </div>
